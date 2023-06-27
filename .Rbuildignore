@@ -1,0 +1,4 @@
+^.*\.Rproj$
+^README\.Rmd$
+^\.Rproj\.user$
+^\.pre-commit-config\.yaml$
