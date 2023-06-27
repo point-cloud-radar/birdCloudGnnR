@@ -9,15 +9,17 @@ utils::globalVariables(".data")
 #' @param scan_id_column
 #' @param range_column
 #' @param azimuth_column
-#' @param to_add
+#' @param to_add The name of the one or more columns to add
 #'
 #' @return A polar volume with the columns `to_add` from `x` have been added to.
 #' @export
 #'
 #' @examples
-dataframe_into_pvol <- function(x, pvol, scan_id_column = "scan_id",
+dataframe_into_pvol <- function(x, pvol,
+                                scan_id_column = "scan_id",
                                 range_column = "range",
-                                azimuth_column = "azimuth", to_add = "CLASS") {
+                                azimuth_column = "azimuth",
+                                to_add = "CLASS") {
   assertthat::assert_that(bioRad::is.pvol(pvol))
   assertthat::assert_that(rlang::is_scalar_character(scan_id_column))
   assertthat::assert_that(rlang::is_scalar_character(range_column))
