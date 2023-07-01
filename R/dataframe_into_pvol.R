@@ -6,9 +6,11 @@ utils::globalVariables(".data")
 #'
 #' @param x A data frame or tibble
 #' @param pvol a polar volume as a [pvol][bioRad::is.pvol] object
-#' @param scan_id_column
-#' @param range_column
-#' @param azimuth_column
+#' @param scan_id_column The name of the column identifying the scan id
+#' @param range_column The name of the column containing the ranges
+#' to the cell centers from the radar
+#' @param azimuth_column The name of the column containing the
+#'  azimuth of the cell centers
 #' @param to_add The name of the one or more columns to add
 #'
 #' @return A polar volume with the columns `to_add` from `x` have been added to.
@@ -43,8 +45,10 @@ dataframe_into_pvol <- function(x, pvol,
         range_std = (!!rlang::sym(range_column) - c(s$geo$rstart)) /
           s$geo$rscale + 0.5,
         azimuth_std = (!!rlang::sym(azimuth_column) - c(astart)) /
-          s$geo$ascale + 0.5,
-        index = rlang::.data$range_std + d[1] * (rlang::.data$azimuth_std - 1)
+          s$geo$ascale + 0.5
+      ) %>%
+      dplyr::mutate(
+        index = range_std + d[1] * (azimuth_std - 1)
       )
     assertthat::assert_that(rlang::is_integerish(df_sub$azimuth_std))
     assertthat::assert_that(rlang::is_integerish(df_sub$range_std))

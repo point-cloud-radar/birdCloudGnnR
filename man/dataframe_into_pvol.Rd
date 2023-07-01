@@ -18,6 +18,14 @@ dataframe_into_pvol(
 
 \item{pvol}{a polar volume as a \link[bioRad:summary.pvol]{pvol} object}
 
+\item{scan_id_column}{The name of the column identifying the scan id}
+
+\item{range_column}{The name of the column containing the ranges
+to the cell centers from the radar}
+
+\item{azimuth_column}{The name of the column containing the
+azimuth of the cell centers}
+
 \item{to_add}{The name of the one or more columns to add}
 }
 \value{
