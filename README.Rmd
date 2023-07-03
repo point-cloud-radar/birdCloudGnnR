@@ -35,6 +35,65 @@ devtools::install_github("point-cloud-radar/birdCloudGnnR")
 This is a basic example which shows you how to solve a common problem:
 
 ```{r example}
-library(birdCloudGnnR)
-## basic example code
+devtools::load_all()
+sp::set_evolution_status(2L)
+require(reticulate)
+require(bioRad)
+require(ggplot2)
+require(dplyr)
+pvol_dir <- "~/ownCloudUva/labels/old"
+pvol_files <- list.files(pvol_dir, "*.h5$", full.names = TRUE)
+file <- pvol_files[1]
+pvol <- read_pvolfile(file, param = "all") |>
+  select(-any_of(c("CPAH", "SQIH", "CCORH", "SQIV", "CCORV", "UPHIDP")))
+r <- pvol_to_dataframe(pvol)
+
+features <- c(
+  "range",
+  "azimuth",
+  "elevation",
+  "TH",
+  "TV",
+  "DBZH",
+  "DBZV",
+  "RHOHV",
+  "VRADH",
+  "VRADV",
+  "centered_x",
+  "centered_y"
+)
+rds <- import("bird_cloud_gnn.radar_dataset")
+rr <- r %>% filter(range < 24000, range > 17000, z < 10000, azimuth < 180)
+nrow(rr)
+rm(r)
+gc()
+rr$CLASS <- 1 # RadarDataSet selects for existing labels
+system.time(l <- rds$RadarDataset(rr %>% select(-scan_id),
+  features = features, target = "CLASS", max_poi_per_label = 500000L,
+  num_neighbours = 50, max_edge_distance = 650
+))
+assertthat::assert_that(l$`__len__`() == nrow(rr))
+gcn <- import("bird_cloud_gnn.gnn_model")
+model <- gcn$GCN(length(features), h_feats = 32L, num_classes = 2L)
+torch <- import("torch")
+model$load_state_dict(torch$load("/home/bart/testModel.pth"))
+model$eval()
+rr$CLASS <- c(model$infer(dataset = l, batch_size = 1024L))
+table(rr$CLASS)
+mean(rr$CLASS)
+pvol2 <- dataframe_into_pvol(rr, pvol, to_add = "CLASS")
+e <- unique(get_elevation_angles(pvol2))[1:3]
+ppis <- plot_scans_ppis(pvol2, e,
+  params = c("DBZH", "VRADH", "CLASS"),
+  range_max = 30000
+)
+
+patchwork::wrap_plots(ppis, nrow = length(e)) &
+  ggplot2::theme(
+    plot.background =
+      ggplot2::element_rect(
+        fill = "black",
+        color = "black"
+      )
+  )
 ```

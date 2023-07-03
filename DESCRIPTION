@@ -13,6 +13,7 @@ Imports:
     assertthat,
     bioRad,
     dplyr,
+    ggplot2,
     reticulate,
     rlang
 Roxygen: list(markdown = TRUE)
