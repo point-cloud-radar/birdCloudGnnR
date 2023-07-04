@@ -13,6 +13,8 @@ repos:
         -    bioRad
         -    reticulate
         -    rlang
+        -    ggdark
+        -    ggplot2
         -    bioc::rhdf5
         -    Rcpp@1.0.10
         -    purrr@1.0.1
