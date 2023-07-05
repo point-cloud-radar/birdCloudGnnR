@@ -4,7 +4,7 @@
 \alias{infer}
 \title{Title}
 \usage{
-infer(x, model, n_features = NA)
+infer(x, model, features = NA)
 }
 \arguments{
 \item{model}{Either a model or a math to a stored model}

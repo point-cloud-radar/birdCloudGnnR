@@ -62,25 +62,17 @@ features <- c(
   "centered_x",
   "centered_y"
 )
-rds <- import("bird_cloud_gnn.radar_dataset")
-rr <- r %>% filter(range < 24000, range > 17000, z < 10000, azimuth < 180)
-rm(r)
-rr$BIOLOGY_GNN <- 0 # RadarDataSet selects for existing labels
-system.time(l <- rds$RadarDataset(rr %>% select(-scan_id),
-  features = features, target = "BIOLOGY_GNN", max_poi_per_label = 500000L,
-  num_neighbours = 50, max_edge_distance = 650
-))
-assertthat::assert_that(l$`__len__`() == nrow(rr))
-rr$BIOLOGY_GNN <- infer(l, "/home/bart/testModel.pth",
-  n_features = length(features)
-)
-table(rr$BIOLOGY_GNN)
-mean(rr$BIOLOGY_GNN)
-pvol2 <- dataframe_into_pvol(rr, pvol, to_add = "BIOLOGY_GNN")
+nrow(r)
+r <- r %>% filter(range < 75000, range > 15000, z < 10000)
+nrow(r)
+r$BIOLOGY_GNN <- 0 # RadarDataSet selects for existing labels
+r$BIOLOGY_GNN <- infer(r, "/home/bart/testModel.pth", features = features)
+
+pvol2 <- dataframe_into_pvol(r, pvol, to_add = "BIOLOGY_GNN")
 e <- unique(get_elevation_angles(pvol2))[1:3]
 ppis <- plot_scans_ppis(pvol2, e,
   params = c("DBZH", "VRADH", "BIOLOGY_GNN"),
-  range_max = 30000
+  range_max = 75000
 )
 
 patchwork::wrap_plots(ppis, nrow = length(e)) &

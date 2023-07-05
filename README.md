@@ -86,32 +86,82 @@ features <- c(
   "centered_x",
   "centered_y"
 )
-rds <- import("bird_cloud_gnn.radar_dataset")
-rr <- r %>% filter(range < 24000, range > 17000, z < 10000, azimuth < 180)
-rm(r)
-rr$BIOLOGY_GNN <- 0 # RadarDataSet selects for existing labels
-system.time(l <- rds$RadarDataset(rr %>% select(-scan_id),
-  features = features, target = "BIOLOGY_GNN", max_poi_per_label = 500000L,
-  num_neighbours = 50, max_edge_distance = 650
-))
-#>    user  system elapsed 
-#>   8.180   1.406   9.944
-assertthat::assert_that(l$`__len__`() == nrow(rr))
-#> [1] TRUE
-rr$BIOLOGY_GNN <- infer(l, "/home/bart/testModel.pth",
-  n_features = length(features)
-)
-table(rr$BIOLOGY_GNN)
-#> 
-#>     0     1 
-#> 15109 49740
-mean(rr$BIOLOGY_GNN)
-#> [1] 0.7670126
-pvol2 <- dataframe_into_pvol(rr, pvol, to_add = "BIOLOGY_GNN")
+nrow(r)
+#> [1] 1338656
+r <- r %>% filter(range < 75000, range > 15000, z < 10000)
+nrow(r)
+#> [1] 550510
+r$BIOLOGY_GNN <- 0 # RadarDataSet selects for existing labels
+r$BIOLOGY_GNN <- infer(r, "/home/bart/testModel.pth", features = features)
+#> Inferring ■ 1% | ETA: 2hInferring ■■ 3% | ETA: 3hInferring ■■ 4% | ETA:
+#> 3hInferring ■■ 5% | ETA: 3hInferring ■■■ 5% | ETA: 3hInferring ■■■ 6% | ETA:
+#> 2hInferring ■■■ 7% | ETA: 2hInferring ■■■ 8% | ETA: 2hInferring ■■■■ 9% | ETA:
+#> 2hInferring ■■■■ 10% | ETA: 2hInferring ■■■■ 11% | ETA: 2hInferring ■■■■■ 12% |
+#> ETA: 1hInferring ■■■■■ 13% | ETA: 1hInferring ■■■■■ 14% | ETA: 1hInferring
+#> ■■■■■ 14% | ETA: 1hInferring ■■■■■■ 15% | ETA: 1hInferring ■■■■■■ 16% | ETA:
+#> 1hInferring ■■■■■■ 17% | ETA: 1hInferring ■■■■■■ 18% | ETA: 1hInferring ■■■■■■■
+#> 19% | ETA: 1hInferring ■■■■■■■ 20% | ETA: 1hInferring ■■■■■■■ 21% | ETA:
+#> 1hInferring ■■■■■■■ 22% | ETA: 1hInferring ■■■■■■■■ 23% | ETA: 1hInferring
+#> ■■■■■■■■ 23% | ETA: 1hInferring ■■■■■■■■ 24% | ETA: 1hInferring ■■■■■■■■■ 25% |
+#> ETA: 1hInferring ■■■■■■■■■ 26% | ETA: 1hInferring ■■■■■■■■■ 27% | ETA:
+#> 1hInferring ■■■■■■■■■ 28% | ETA: 1hInferring ■■■■■■■■■■ 29% | ETA: 1hInferring
+#> ■■■■■■■■■■ 30% | ETA: 50mInferring ■■■■■■■■■■ 31% | ETA: 48mInferring
+#> ■■■■■■■■■■ 32% | ETA: 47mInferring ■■■■■■■■■■■ 32% | ETA: 46mInferring
+#> ■■■■■■■■■■■ 33% | ETA: 45mInferring ■■■■■■■■■■■ 34% | ETA: 44mInferring
+#> ■■■■■■■■■■■■ 35% | ETA: 44mInferring ■■■■■■■■■■■■ 36% | ETA: 43mInferring
+#> ■■■■■■■■■■■■ 37% | ETA: 42mInferring ■■■■■■■■■■■■ 38% | ETA: 41mInferring
+#> ■■■■■■■■■■■■■ 39% | ETA: 40mInferring ■■■■■■■■■■■■■ 40% | ETA: 39mInferring
+#> ■■■■■■■■■■■■■ 41% | ETA: 38mInferring ■■■■■■■■■■■■■ 41% | ETA: 38mInferring
+#> ■■■■■■■■■■■■■■ 42% | ETA: 37mInferring ■■■■■■■■■■■■■■ 43% | ETA: 36mInferring
+#> ■■■■■■■■■■■■■■ 44% | ETA: 36mInferring ■■■■■■■■■■■■■■■ 45% | ETA: 35mInferring
+#> ■■■■■■■■■■■■■■■ 46% | ETA: 34mInferring ■■■■■■■■■■■■■■■ 47% | ETA: 33mInferring
+#> ■■■■■■■■■■■■■■■ 48% | ETA: 32mInferring ■■■■■■■■■■■■■■■■ 49% | ETA:
+#> 32mInferring ■■■■■■■■■■■■■■■■ 50% | ETA: 31mInferring ■■■■■■■■■■■■■■■■ 50% |
+#> ETA: 30mInferring ■■■■■■■■■■■■■■■■ 51% | ETA: 30mInferring ■■■■■■■■■■■■■■■■■
+#> 52% | ETA: 29mInferring ■■■■■■■■■■■■■■■■■ 53% | ETA: 29mInferring
+#> ■■■■■■■■■■■■■■■■■ 54% | ETA: 28mInferring ■■■■■■■■■■■■■■■■■ 55% | ETA:
+#> 27mInferring ■■■■■■■■■■■■■■■■■■ 56% | ETA: 27mInferring ■■■■■■■■■■■■■■■■■■ 57%
+#> | ETA: 26mInferring ■■■■■■■■■■■■■■■■■■ 58% | ETA: 25mInferring
+#> ■■■■■■■■■■■■■■■■■■■ 59% | ETA: 25mInferring ■■■■■■■■■■■■■■■■■■■ 59% | ETA:
+#> 24mInferring ■■■■■■■■■■■■■■■■■■■ 60% | ETA: 24mInferring ■■■■■■■■■■■■■■■■■■■
+#> 61% | ETA: 23mInferring ■■■■■■■■■■■■■■■■■■■■ 62% | ETA: 22mInferring
+#> ■■■■■■■■■■■■■■■■■■■■ 63% | ETA: 22mInferring ■■■■■■■■■■■■■■■■■■■■ 64% | ETA:
+#> 21mInferring ■■■■■■■■■■■■■■■■■■■■ 65% | ETA: 20mInferring ■■■■■■■■■■■■■■■■■■■■■
+#> 66% | ETA: 20mInferring ■■■■■■■■■■■■■■■■■■■■■ 67% | ETA: 19mInferring
+#> ■■■■■■■■■■■■■■■■■■■■■ 68% | ETA: 19mInferring ■■■■■■■■■■■■■■■■■■■■■■ 68% | ETA:
+#> 18mInferring ■■■■■■■■■■■■■■■■■■■■■■ 69% | ETA: 18mInferring
+#> ■■■■■■■■■■■■■■■■■■■■■■ 70% | ETA: 17mInferring ■■■■■■■■■■■■■■■■■■■■■■ 71% |
+#> ETA: 17mInferring ■■■■■■■■■■■■■■■■■■■■■■■ 72% | ETA: 16mInferring
+#> ■■■■■■■■■■■■■■■■■■■■■■■ 73% | ETA: 16mInferring ■■■■■■■■■■■■■■■■■■■■■■■ 74% |
+#> ETA: 15mInferring ■■■■■■■■■■■■■■■■■■■■■■■ 75% | ETA: 14mInferring
+#> ■■■■■■■■■■■■■■■■■■■■■■■■ 76% | ETA: 14mInferring ■■■■■■■■■■■■■■■■■■■■■■■■ 77% |
+#> ETA: 13mInferring ■■■■■■■■■■■■■■■■■■■■■■■■ 77% | ETA: 13mInferring
+#> ■■■■■■■■■■■■■■■■■■■■■■■■■ 78% | ETA: 12mInferring ■■■■■■■■■■■■■■■■■■■■■■■■■ 79%
+#> | ETA: 12mInferring ■■■■■■■■■■■■■■■■■■■■■■■■■ 80% | ETA: 11mInferring
+#> ■■■■■■■■■■■■■■■■■■■■■■■■■ 81% | ETA: 11mInferring ■■■■■■■■■■■■■■■■■■■■■■■■■■
+#> 82% | ETA: 10mInferring ■■■■■■■■■■■■■■■■■■■■■■■■■■ 83% | ETA: 10mInferring
+#> ■■■■■■■■■■■■■■■■■■■■■■■■■■ 84% | ETA: 9mInferring ■■■■■■■■■■■■■■■■■■■■■■■■■■
+#> 85% | ETA: 9mInferring ■■■■■■■■■■■■■■■■■■■■■■■■■■■ 86% | ETA: 8mInferring
+#> ■■■■■■■■■■■■■■■■■■■■■■■■■■■ 86% | ETA: 8mInferring ■■■■■■■■■■■■■■■■■■■■■■■■■■■
+#> 87% | ETA: 7mInferring ■■■■■■■■■■■■■■■■■■■■■■■■■■■ 88% | ETA: 7mInferring
+#> ■■■■■■■■■■■■■■■■■■■■■■■■■■■■ 89% | ETA: 6mInferring
+#> ■■■■■■■■■■■■■■■■■■■■■■■■■■■■ 90% | ETA: 6mInferring
+#> ■■■■■■■■■■■■■■■■■■■■■■■■■■■■ 91% | ETA: 5mInferring
+#> ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■ 92% | ETA: 5mInferring
+#> ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■ 93% | ETA: 4mInferring
+#> ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■ 94% | ETA: 4mInferring
+#> ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■ 95% | ETA: 3mInferring
+#> ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■ 95% | ETA: 3mInferring
+#> ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■ 96% | ETA: 2mInferring
+#> ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■ 97% | ETA: 2mInferring
+#> ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■ 98% | ETA: 1mInferring
+#> ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■ 99% | ETA: 31s 
+
+pvol2 <- dataframe_into_pvol(r, pvol, to_add = "BIOLOGY_GNN")
 e <- unique(get_elevation_angles(pvol2))[1:3]
 ppis <- plot_scans_ppis(pvol2, e,
   params = c("DBZH", "VRADH", "BIOLOGY_GNN"),
-  range_max = 30000
+  range_max = 75000
 )
 
 patchwork::wrap_plots(ppis, nrow = length(e)) &
@@ -122,9 +172,9 @@ patchwork::wrap_plots(ppis, nrow = length(e)) &
         color = "black"
       )
   )
-#> Warning: Removed 12752 rows containing missing values (`geom_raster()`).
-#> Warning: Removed 12796 rows containing missing values (`geom_raster()`).
-#> Warning: Removed 12886 rows containing missing values (`geom_raster()`).
+#> Warning: Removed 37555 rows containing missing values (`geom_raster()`).
+#> Warning: Removed 47426 rows containing missing values (`geom_raster()`).
+#> Warning: Removed 50279 rows containing missing values (`geom_raster()`).
 ```
 
 <img src="man/figures/README-example-1.png" width="100%" />
