@@ -1,0 +1,101 @@
+---
+title: "A summary of the dataset"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{A summary of the dataset}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  fig.width = 8,
+  fig.height = 7,
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+## Read all labels
+```{r setup}
+files <- list.files("~/allLabels/", pattern = "csv.gz", full.names = TRUE)
+suppressMessages(require(readr))
+suppressMessages(require(dplyr))
+suppressMessages(require(ggplot2))
+suppressMessages(require(scales))
+require(uvaRadar)
+combined_labels <- bind_rows(
+  mapply(
+    SIMPLIFY = FALSE,
+    bind_cols, file = factor(sub("\\..*", "", basename(files))),
+    parallel::mclapply(
+      mc.cores = 4, files, read_csv,
+      col_select = c("CLASS", "BIOLOGY"), col_types = "ii"
+    )
+  )
+)
+```
+## Annotations per polar volume
+Polar volumes are largely synonymous with files
+```{r plot1}
+qplot(x = table(combined_labels$file[!is.na(combined_labels$BIOLOGY)])) +
+  geom_histogram() +
+  scale_x_log10("Number of annotated points",
+    labels = trans_format("log10", math_format(10^.x))
+  ) +
+  ylab("Number of files") + ggtitle("Number of annotated points per file")
+```
+
+The distribution of the fraction of each file annotated
+
+```{r plot2}
+qplot(x = table(combined_labels$file[!is.na(combined_labels$BIOLOGY)]) /
+  table(combined_labels$file)) +
+  geom_histogram() + xlab("Fraction of file annotated") +
+  ylab("Number of files")
+
+# most files have either biology annotated or other things
+combined_labels %>%
+  filter(!is.na(BIOLOGY)) %>%
+  group_by(file) %>%
+  summarise(frac_biology = sum(BIOLOGY) / n()) %>%
+  ggplot() +
+  geom_histogram(aes(x = frac_biology)) +
+  ggtitle("Fraction of biology annotated per file") +
+  xlab("Fraction of biology") +
+  ylab("Number of files")
+# Over all the total data set contains roughly as much biology as other stuff:
+sum(combined_labels$BIOLOGY, na.rm = TRUE) /
+  sum(!is.na(combined_labels$BIOLOGY))
+# The total number of annotated points
+sum(!is.na(combined_labels$BIOLOGY))
+
+
+combined_labels %>%
+  filter(!(CLASS %in% clutter_labels) & CLASS != 0) %>%
+  select(-BIOLOGY) %>%
+  mutate(file = as.character(file)) |>
+  table()
+
+table(combined_labels[, -1])
+clutter_labels
+table(combined_labels$BIOLOGY)
+table(combined_labels$file[!is.na(combined_labels$BIOLOGY)])
+table(combined_labels$file[
+  !is.na(combined_labels$BIOLOGY)
+]) /
+  table(combined_labels$file)
+table(combined_labels)
+table(combined_labels$BIOLOGY) |> sum()
+com2 <- bind_rows(
+  mapply(
+    SIMPLIFY = FALSE, bind_cols,
+    file = factor(files),
+    parallel::mclapply(
+      mc.cores = 4, files,
+      read_csv, col_select = c("DBZH", "DBZV", "TV", "TH")
+    )
+  )
+)
+# Number of NA's across reflictivity columns
+table(rowSums(is.na(com2)))
+```
